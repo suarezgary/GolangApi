@@ -77,12 +77,13 @@ func RequireUserForAPI(handler http.Handler) http.HandlerFunc {
 			jsonhttp.JSONDetailed(w, jsonhttp.APIResponse{Message: "Unauthorized", Debug: "Invalid or missing access token header/cookie"}, http.StatusUnauthorized)
 		}
 		user, err := reqctx.GetCurrentUser(r)
-		if err != nil || user.ID == 0 {
+		_ = user
+		if err != nil {
 			respondUnauthorized()
 			return
-		} else {
-			handler.ServeHTTP(w, r)
 		}
+
+		handler.ServeHTTP(w, r)
 	}
 }
 
@@ -93,7 +94,9 @@ func RequireUserForView(handler http.Handler) http.HandlerFunc {
 			htmlhttp.UnauthorizedErrorView(w, r)
 		}
 		user, err := reqctx.GetCurrentUser(r)
-		if err != nil || user.ID == 0 {
+
+		_ = user
+		if err != nil {
 			respondUnauthorized()
 			return
 		}

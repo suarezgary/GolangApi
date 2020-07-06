@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gorilla/handlers"
 	"github.com/suarezgary/GolangApi/config"
+	"github.com/suarezgary/GolangApi/models"
 	"github.com/suarezgary/GolangApi/routes"
 )
 
@@ -24,10 +26,9 @@ var CORSHandler = handlers.CORS(
 	handlers.AllowedOrigins(config.Cfg().AllowedOrigins))
 
 func main() {
-	fmt.Println("test")
 	Log.Info("Setting up database connection ...")
 
-	/*for {
+	for {
 		err := models.Setup()
 		if err != nil {
 			Log.WithError(err).Error("Error setting up database connection, retrying ...")
@@ -35,7 +36,7 @@ func main() {
 		} else {
 			break
 		}
-	}*/
+	}
 
 	Log.Info("Connected to database")
 

@@ -34,7 +34,7 @@ func GetCurrentUser(r *http.Request) (models.User, error) {
 func GetCurrentUserAndCatchForAPI(w http.ResponseWriter, r *http.Request) (models.User, error) {
 	var user models.User
 	user, err := GetCurrentUser(r)
-	if err != nil || user.ID == 0 {
+	if err != nil {
 		jsonhttp.JSONWriter(w, unauthorizedError, http.StatusUnauthorized)
 		return user, err
 	}
@@ -45,7 +45,7 @@ func GetCurrentUserAndCatchForAPI(w http.ResponseWriter, r *http.Request) (model
 func GetCurrentUserAndCatchForView(w http.ResponseWriter, r *http.Request) (models.User, error) {
 	var user models.User
 	user, err := GetCurrentUser(r)
-	if err != nil || user.ID == 0 {
+	if err != nil {
 		htmlhttp.UnauthorizedErrorView(w, r)
 		return user, err
 	}

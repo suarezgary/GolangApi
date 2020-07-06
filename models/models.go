@@ -15,7 +15,8 @@ var db *gorm.DB
 
 //Setup - Setup database
 func Setup() (err error) {
-	db, err = gorm.Open("mysql", config.Cfg().DBPath)
+	path := config.Cfg().DBPath
+	db, err = gorm.Open("mysql", path)
 	if err != nil {
 		return err
 	}
@@ -28,6 +29,8 @@ func Setup() (err error) {
 	db.LogMode(true)
 
 	db.SingularTable(true)
+
+	db.AutoMigrate(&User{})
 
 	return nil
 }

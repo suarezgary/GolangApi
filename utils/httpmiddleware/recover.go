@@ -1,6 +1,10 @@
 package httpmiddleware
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/suarezgary/GolangApi/utils/jsonhttp"
+)
 
 // RecoverInternalServerError RecoverInternalServerError
 func RecoverInternalServerError(handler http.Handler) http.HandlerFunc {
@@ -8,8 +12,7 @@ func RecoverInternalServerError(handler http.Handler) http.HandlerFunc {
 		defer func() {
 			r := recover()
 			if r != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte("Internal server error"))
+				jsonhttp.JSONInternalError(w, "Internal Server error", "")
 			}
 		}()
 		handler.ServeHTTP(w, r)

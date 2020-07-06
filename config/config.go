@@ -9,13 +9,14 @@ import (
 
 // Config - The envconfig struct tag is used to explicitly name the var, set defaults, and flag required values
 type Config struct {
-	DBPath          string   `envconfig:"DB_PATH" default:"YourMySQLUser:YourMySQLPwd@tcp(localhost:3306)/TheNameOfYourDatabase?charset=utf8mb4&parseTime=True"` //required:"true"`
+	DBPath          string   `envconfig:"DB_PATH" required:"true"`
 	Mode            string   `envconfig:"MODE" default:"production"`
 	ListenAddress   string   `envconfig:"LISTEN_ADDRESS" default:"0.0.0.0"`
 	ListenPort      string   `envconfig:"LISTEN_PORT" default:"3333"`
 	AllowedOrigins  []string `envconfig:"ALLOWED_ORIGINS" default:"*"`
 	ServiceAPIKey   string   `envconfig:"SERVICE_API_KEY" default:"insecure"`
 	TokenCookieName string   `envconfig:"TOKEN_COOKIE_NAME" default:"auth_tkn"`
+	AccessSecret    string   `envconfig:"ACCESS_SECRET" default:"ACCESS_SECRET_KEY"`
 }
 
 var conf *Config

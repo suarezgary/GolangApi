@@ -22,6 +22,10 @@ func CreateRouter() http.Handler {
 	v1Router := router.PathPrefix("/v1").Subrouter()
 	v1Router.HandleFunc("/", v1.API).Methods("GET")
 	v1Router.HandleFunc("/gophers", httpmiddleware.Use(v1.GetGophers, middleware.RequireAPIKey)).Methods("GET")
+	v1Router.HandleFunc("/users", httpmiddleware.Use(v1.GetUsers)).Methods("GET")
+	v1Router.HandleFunc("/users", httpmiddleware.Use(v1.CreateUser)).Methods("POST")
+	v1Router.HandleFunc("/login", httpmiddleware.Use(v1.Login)).Methods("POST")
+	v1Router.HandleFunc("/signup", httpmiddleware.Use(v1.SignUp)).Methods("POST")
 
 	return httpmiddleware.Use(router.ServeHTTP, middleware.GetContext, httpmiddleware.RecoverInternalServerError)
 }
