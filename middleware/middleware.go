@@ -9,6 +9,7 @@ import (
 	"github.com/suarezgary/GolangApi/reqctx"
 	"github.com/suarezgary/GolangApi/utils/htmlhttp"
 	"github.com/suarezgary/GolangApi/utils/jsonhttp"
+	"github.com/suarezgary/GolangApi/utils/jwtutil"
 )
 
 //Log - Logger
@@ -21,10 +22,14 @@ func GetContext(handler http.Handler) http.HandlerFunc {
 			handler.ServeHTTP(w, r)
 		}
 		var handleNonEmptyToken = func(value string) {
-			user := models.User{}
-			// TODO Here we would actually use the token value, i.e., a JWT, to track down and verify our user!
-			//      Error ignored since we're in TODO mode here. IRL you should check that!
-			user.FindByID()
+			var user models.User
+			userToken, err := jwtutil.ExtractTokenMetadata(value)
+			if err != nil {
+				passItOn()
+				return
+			}
+			user.ID = userToken.ID
+			user.FullName = userToken.FullName
 			// Update our request
 			r = r.WithContext(reqctx.AddCurrentUserToContext(r, user))
 			// Move on to the next middleware

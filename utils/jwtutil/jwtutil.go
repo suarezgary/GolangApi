@@ -3,7 +3,7 @@ package jwtutil
 import (
 	"fmt"
 	"net/http"
-	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -46,7 +46,22 @@ func VerifyToken(r *http.Request) (*jwt.Token, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(os.Getenv("ACCESS_SECRET")), nil
+		return []byte(config.Cfg().AccessSecret), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return token, nil
+}
+
+//VerifyTokenString VerifyTokenString
+func VerifyTokenString(tokenString string) (*jwt.Token, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		//Make sure that the token method conform to "SigningMethodHMAC"
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(config.Cfg().AccessSecret), nil
 	})
 	if err != nil {
 		return nil, err
@@ -64,4 +79,40 @@ func TokenValid(r *http.Request) error {
 		return err
 	}
 	return nil
+}
+
+//TokenValidString TokenValidString
+func TokenValidString(tokenString string) error {
+	token, err := VerifyTokenString(tokenString)
+	if err != nil {
+		return err
+	}
+	if _, ok := token.Claims.(jwt.Claims); !ok && !token.Valid {
+		return err
+	}
+	return nil
+}
+
+//ExtractTokenMetadata ExtractTokenMetadata
+func ExtractTokenMetadata(tokenString string) (*models.User, error) {
+	token, err := VerifyTokenString(tokenString)
+	if err != nil {
+		return nil, err
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if ok && token.Valid {
+		userName, ok := claims["user_name"].(string)
+		if !ok {
+			return nil, err
+		}
+		userID, err := strconv.ParseUint(fmt.Sprintf("%.f", claims["user_id"]), 10, 64)
+		if err != nil {
+			return nil, err
+		}
+		return &models.User{
+			FullName: userName,
+			ID:       userID,
+		}, nil
+	}
+	return nil, err
 }
