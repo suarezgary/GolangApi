@@ -31,6 +31,8 @@ func Setup() (err error) {
 	db.SingularTable(true)
 
 	db.AutoMigrate(&User{})
+	db.AutoMigrate(&Notification{})
+	db.Model(&Notification{}).AddForeignKey("user_id", "user(id)", "CASCADE", "CASCADE")
 
 	return nil
 }

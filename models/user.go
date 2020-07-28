@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"strings"
-	"time"
 
 	"crypto/sha1"
 
@@ -14,17 +13,16 @@ import (
 
 //User - User Model
 type User struct {
-	ID             uint64     `json:"id"`
-	FullName       string     `json:"fullName"`
-	CreatedAt      time.Time  `json:"-"`
-	UpdatedAt      *time.Time `json:"-"`
-	DeletedAt      *time.Time `json:"-"`
-	Deleted        bool       `json:"-"`
-	HashedPassword string     `json:"-" gorm:"type:varchar(500);"`
-	Salt           string     `json:"-"`
-	Address        string     `json:"address"`
-	Email          string     `json:"email"`
-	Password       string     `json:"password" gorm:"-"`
+	gorm.Model
+	FullName       string         `json:"fullName"`
+	Deleted        bool           `json:"-"`
+	HashedPassword string         `json:"-" gorm:"type:varchar(500);"`
+	Salt           string         `json:"-"`
+	Address        string         `json:"address"`
+	Email          string         `json:"email"`
+	Password       string         `json:"password" gorm:"-"`
+	NewPassword    string         `json:"newPassword" gorm:"-"`
+	Notifications  []Notification `json:"notifications"`
 }
 
 // BeforeCreate will set a UUID rather than numeric ID.
@@ -60,7 +58,6 @@ func (user *User) UpdateMeta() error {
 //GetUsers - Get Gophers
 func GetUsers(limit, offset int64) ([]User, error) {
 	var users []User
-	// Technically this query could go through GORM natively, but just showing off raw SQL query functionality!
 	if err := db.Limit(limit).Offset(offset).Find(&users).Error; err != nil {
 		return nil, err
 	}
@@ -92,6 +89,22 @@ func (user *User) ValidateUserModel() error {
 	return nil
 }
 
+//ValidateNewPassword ValidateNewPassword
+func (user *User) ValidateNewPassword() error {
+	if len(strings.TrimSpace(user.Password)) == 0 {
+		return errors.New("Password can't be empty")
+	}
+
+	if len(strings.TrimSpace(user.Email)) == 0 {
+		return errors.New("Email can't be empty")
+	}
+
+	if len(strings.TrimSpace(user.NewPassword)) == 0 {
+		return errors.New("New Password can't be empty")
+	}
+	return nil
+}
+
 //ValidatePass ValidatePass
 func (user *User) ValidatePass() bool {
 	finalSalt := user.Salt + user.Email + user.Password
@@ -99,4 +112,20 @@ func (user *User) ValidatePass() bool {
 	hasher.Write([]byte(finalSalt))
 	sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
 	return sha == user.HashedPassword
+}
+
+//ChangePass ChangePass
+func (user *User) ChangePass(newPassword string) error {
+	user.Password = newPassword
+	user.Salt = uuid.New().String()
+	finalSalt := user.Salt + user.Email + user.Password
+	hasher := sha1.New()
+	hasher.Write([]byte(finalSalt))
+	sha := base64.URLEncoding.EncodeToString(hasher.Sum(nil))
+	user.HashedPassword = sha
+
+	return db.Table("user").Where("id = ?", user.ID).Updates(map[string]interface{}{
+		"hashed_password": user.HashedPassword,
+		"salt":            user.Salt,
+	}).Error
 }

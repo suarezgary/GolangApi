@@ -17,6 +17,10 @@ type Config struct {
 	ServiceAPIKey   string   `envconfig:"SERVICE_API_KEY" default:"insecure"`
 	TokenCookieName string   `envconfig:"TOKEN_COOKIE_NAME" default:"auth_tkn"`
 	AccessSecret    string   `envconfig:"ACCESS_SECRET" default:"ACCESS_SECRET_KEY"`
+	SMTPEmail       string   `envconfig:"SMTP_EMAIL" default:"admin@hiottech.com"`
+	SMTPPassword    string   `envconfig:"SMTP_PASSWORD" default:"sx7zhqCSMvfy"`
+	SMTPHost        string   `envconfig:"SMTP_HOST" default:"smtp.zoho.com"`
+	SMTPPort        string   `envconfig:"SMTP_PORT" default:"587"`
 }
 
 var conf *Config

@@ -12,6 +12,12 @@ import (
 	"github.com/suarezgary/GolangApi/models"
 )
 
+// TokenModel TokenModel
+type TokenModel struct {
+	ID       uint
+	FullName string
+}
+
 //CreateToken Create Token
 func CreateToken(user models.User) (string, error) {
 	atClaims := jwt.MapClaims{}
@@ -94,7 +100,7 @@ func TokenValidString(tokenString string) error {
 }
 
 //ExtractTokenMetadata ExtractTokenMetadata
-func ExtractTokenMetadata(tokenString string) (*models.User, error) {
+func ExtractTokenMetadata(tokenString string) (*TokenModel, error) {
 	token, err := VerifyTokenString(tokenString)
 	if err != nil {
 		return nil, err
@@ -109,9 +115,9 @@ func ExtractTokenMetadata(tokenString string) (*models.User, error) {
 		if err != nil {
 			return nil, err
 		}
-		return &models.User{
+		return &TokenModel{
 			FullName: userName,
-			ID:       userID,
+			ID:       uint(userID),
 		}, nil
 	}
 	return nil, err

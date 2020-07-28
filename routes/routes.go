@@ -26,6 +26,8 @@ func CreateRouter() http.Handler {
 	v1Router.HandleFunc("/users", httpmiddleware.Use(v1.CreateUser)).Methods("POST")
 	v1Router.HandleFunc("/login", httpmiddleware.Use(v1.Login)).Methods("POST")
 	v1Router.HandleFunc("/signup", httpmiddleware.Use(v1.SignUp)).Methods("POST")
+	v1Router.HandleFunc("/forgot", httpmiddleware.Use(v1.Forgot)).Methods("POST")
+	v1Router.HandleFunc("/changepass", httpmiddleware.Use(v1.ChangePass)).Methods("POST")
 
 	return httpmiddleware.Use(router.ServeHTTP, middleware.GetContext, httpmiddleware.RecoverInternalServerError)
 }
