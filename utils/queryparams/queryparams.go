@@ -3,6 +3,8 @@ package queryparams
 import (
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 //GetLimitOffsetQueryParametersSentinel GetLimitOffsetQueryParametersSentinel
@@ -45,4 +47,16 @@ func GetLimitOffsetQueryParametersUint(r *http.Request) (limit, offset uint) {
 //GetStringQueryParameter GetStringQueryParameter
 func GetStringQueryParameter(r *http.Request, key string) string {
 	return r.URL.Query().Get(key)
+}
+
+//GetID GetID
+func GetID(r *http.Request) (uint, error) {
+	params := mux.Vars(r)
+	idString := params["id"]
+
+	id, err := strconv.ParseUint(idString, 10, 32)
+	if err != nil || id <= 0 {
+		return 0, err
+	}
+	return uint(id), nil
 }
