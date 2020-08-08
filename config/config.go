@@ -9,18 +9,21 @@ import (
 
 // Config - The envconfig struct tag is used to explicitly name the var, set defaults, and flag required values
 type Config struct {
-	DBPath          string   `envconfig:"DB_PATH" required:"true"`
-	Mode            string   `envconfig:"MODE" default:"production"`
-	ListenAddress   string   `envconfig:"LISTEN_ADDRESS" default:"0.0.0.0"`
-	ListenPort      string   `envconfig:"LISTEN_PORT" default:"3333"`
-	AllowedOrigins  []string `envconfig:"ALLOWED_ORIGINS" default:"*"`
-	ServiceAPIKey   string   `envconfig:"SERVICE_API_KEY" default:"insecure"`
-	TokenCookieName string   `envconfig:"TOKEN_COOKIE_NAME" default:"auth_tkn"`
-	AccessSecret    string   `envconfig:"ACCESS_SECRET" default:"ACCESS_SECRET_KEY"`
-	SMTPEmail       string   `envconfig:"SMTP_EMAIL" default:"admin@hiottech.com"`
-	SMTPPassword    string   `envconfig:"SMTP_PASSWORD" default:"sx7zhqCSMvfy"`
-	SMTPHost        string   `envconfig:"SMTP_HOST" default:"smtp.zoho.com"`
-	SMTPPort        string   `envconfig:"SMTP_PORT" default:"587"`
+	DBPath             string   `envconfig:"DB_PATH" required:"true"`
+	Mode               string   `envconfig:"MODE" default:"production"`
+	ListenAddress      string   `envconfig:"LISTEN_ADDRESS" default:"0.0.0.0"`
+	ListenPort         string   `envconfig:"LISTEN_PORT" default:"3333"`
+	AllowedOrigins     []string `envconfig:"ALLOWED_ORIGINS" default:"*"`
+	ServiceAPIKey      string   `envconfig:"SERVICE_API_KEY" default:"insecure"`
+	TokenCookieName    string   `envconfig:"TOKEN_COOKIE_NAME" default:"auth_tkn"`
+	AccessSecret       string   `envconfig:"ACCESS_SECRET" default:"ACCESS_SECRET_KEY"`
+	SMTPEmail          string   `envconfig:"SMTP_EMAIL" default:"admin@hiottech.com"`
+	SMTPPassword       string   `envconfig:"SMTP_PASSWORD" default:"sx7zhqCSMvfy"`
+	SMTPHost           string   `envconfig:"SMTP_HOST" default:"smtp.zoho.com"`
+	SMTPPort           string   `envconfig:"SMTP_PORT" default:"587"`
+	StorageBucket      string   `envconfig:"STORAGE_BUCKET" default:"file-bucket"`
+	StorageKeyLocation string   `envconfig:"STORAGE_KEY_Location" default:"./file-key.json"`
+	APIURL             string   `envconfig:"API_URL" default:"http://api.example.com/"`
 }
 
 var conf *Config

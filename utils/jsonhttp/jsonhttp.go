@@ -38,6 +38,16 @@ func JSONSuccess(w http.ResponseWriter, data interface{}, message string) {
 	JSONWriter(w, resp, http.StatusOK)
 }
 
+// JSONSuccessNoContent returns a successful APIResponse
+func JSONSuccessNoContent(w http.ResponseWriter) {
+	message := "Record Not Found"
+	resp := APIResponse{
+		Message: message,
+		Success: true,
+	}
+	JSONWriter(w, resp, http.StatusNoContent)
+}
+
 // JSONError returns an APIResponse on the http response with the provided parameters and status code
 func JSONError(w http.ResponseWriter, data interface{}, message string, debug string, statusCode int) {
 	if message == "" {
@@ -159,7 +169,6 @@ func DecodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) err
 	if r.Header.Get("Content-Type") != "" {
 		value, _ := header.ParseValueAndParams(r.Header, "Content-Type")
 		if value != "application/json" {
-			JSONBadRequestError(w, "Content-Type header is not application/json", value)
 			return errors.New("Content-Type header is not application/json")
 		}
 	}
@@ -209,6 +218,53 @@ func DecodeJSONBody(w http.ResponseWriter, r *http.Request, dst interface{}) err
 	if err != io.EOF {
 		msg := "Request body must only contain a single JSON object"
 		return errors.New(msg)
+	}
+
+	return nil
+}
+
+//DecodeJSONFromFormValue DecodeJSONFromFormValue
+func DecodeJSONFromFormValue(w http.ResponseWriter, r *http.Request, dst interface{}, formKey string) error {
+	keyValue := r.FormValue(formKey)
+	if keyValue == "" {
+		return errors.New("Error Getting Value from Form")
+	}
+
+	err := json.Unmarshal([]byte(keyValue), &dst)
+
+	if err != nil {
+		var syntaxError *json.SyntaxError
+		var unmarshalTypeError *json.UnmarshalTypeError
+
+		switch {
+		case errors.As(err, &syntaxError):
+			msg := fmt.Sprintf("Request body contains badly-formed JSON (at position %d)", syntaxError.Offset)
+			return errors.New(msg)
+
+		case errors.Is(err, io.ErrUnexpectedEOF):
+			msg := fmt.Sprintf("Request body contains badly-formed JSON")
+			return errors.New(msg)
+
+		case errors.As(err, &unmarshalTypeError):
+			msg := fmt.Sprintf("Request body contains an invalid value for the %q field (at position %d)", unmarshalTypeError.Field, unmarshalTypeError.Offset)
+			return errors.New(msg)
+
+		case strings.HasPrefix(err.Error(), "json: unknown field "):
+			fieldName := strings.TrimPrefix(err.Error(), "json: unknown field ")
+			msg := fmt.Sprintf("Request body contains unknown field %s", fieldName)
+			return errors.New(msg)
+
+		case errors.Is(err, io.EOF):
+			msg := "Request body must not be empty"
+			return errors.New(msg)
+
+		case err.Error() == "http: request body too large":
+			msg := "Request body must not be larger than 1MB"
+			return errors.New(msg)
+
+		default:
+			return err
+		}
 	}
 
 	return nil
